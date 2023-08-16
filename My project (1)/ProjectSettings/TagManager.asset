@@ -38,6 +38,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Backgorund
+    uniqueID: 749534529
+    locked: 0
+  - name: Trilemap
+    uniqueID: 3305215953
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
