@@ -43,7 +43,6 @@ public class PlayerMovment : MonoBehaviour
     private void UpdateAnimationState()
     {
         anim.SetBool("IsJumping", !isGrounded);
-        anim.SetFloat("Running", rb.velocity.x);
         anim.SetFloat("Speed", Mathf.Abs(dirX));
         if (dirX > 0)
         {
