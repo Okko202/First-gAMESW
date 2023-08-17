@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class PlayerMovment : MonoBehaviour
 {
-   private  Rigidbody2D rb;
+    private  Rigidbody2D rb;
     private Animator anim;
     private SpriteRenderer sprite;
-
+    private Collider2D col;
+    private bool isGrounded;
     private float dirX;
+
+    public LayerMask groundLayer;
     public float moveSpeed = 7f;
     public float jumpForce = 8f;
 
@@ -18,37 +21,37 @@ public class PlayerMovment : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         sprite = GetComponent<SpriteRenderer>();
+        col = GetComponent<Collider2D>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        isGrounded = col.IsTouchingLayers(groundLayer);
+
         dirX = Input.GetAxisRaw("Horizontal");
-        rb.velocity = new Vector2(dirX * 5f, rb.velocity.y);
+        rb.velocity = new Vector2(dirX * moveSpeed, rb.velocity.y);
 
-        if (Input.GetButtonDown("Jump"))
+        if (isGrounded && Input.GetButtonDown("Jump"))
         {
-            rb.velocity = new Vector2(rb.velocity.x, 8f);
-        }    
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        }
 
-          UpdateAnimotionState();
+        UpdateAnimationState();
     }
 
-    private void UpdateAnimotionState()
+    private void UpdateAnimationState()
     {
-        if (dirX > 0f)
+        anim.SetBool("IsJumping", !isGrounded);
+        anim.SetFloat("Running", rb.velocity.x);
+        anim.SetFloat("Speed", Mathf.Abs(dirX));
+        if (dirX > 0)
         {
-            anim.SetBool("running", true);
             sprite.flipX = false;
         }
-        else if (dirX < 0f)
+        else if (dirX < 0)
         {
-            anim.SetBool("running", true);
             sprite.flipX = true;
-        }
-        else
-        {
-            anim.SetBool("running", false);
         }
     }
 }
