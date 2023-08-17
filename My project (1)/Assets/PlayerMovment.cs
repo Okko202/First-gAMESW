@@ -1,77 +1,55 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class PlayerMovment : MonoBehaviour
 {
-   private  Rigidbody2D rb;
-    private Animator anim;
-    private SpriteRenderer sprite;
+    public float moveSpeed = 5f;
+    public float jumpForce = 5f;
+    public LayerMask groundLayer;
 
-    private float dirX;
-    public float moveSpeed = 7f;
-    public float jumpForce = 8f;
+    public Animator animator;
 
-    private enum MovementState { idle , running , jumping , fall }
+    private Rigidbody2D rb;
+    private Collider2D col;
+    private SpriteRenderer spriteRenderer;
+    private bool isGrounded;
+    private float FallSpeed;
 
-
-    // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        anim = GetComponent<Animator>();
-        sprite = GetComponent<SpriteRenderer>();
+        col = GetComponent<Collider2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    private void Update()
+    void Update()
     {
-        Update(new Vector2(dirX * moveSpeed, rb.velocity.y));
-    }
+        isGrounded = col.IsTouchingLayers(groundLayer);
 
-    // Update is called once per frame
-    void Update(Vector2 vector2)
-    {
-        dirX = Input.GetAxisRaw("Horizontal");
-        rb.velocity = vector2;
+        float horizontalInput = Input.GetAxis("Horizontal");
+        animator.SetFloat("Speed", Mathf.Abs(horizontalInput));
+        rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
 
-        if (Input.GetButtonDown("Jump"))
+        if (horizontalInput > 0)
+        {
+            spriteRenderer.flipX = false;
+        }
+        else if (horizontalInput < 0)
+        {
+            spriteRenderer.flipX = true;
+        }
+
+        if (isGrounded && Input.GetButtonDown("Jump"))
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-        }    
-
-          UpdateAnimotionState();
-    }
-
-    private void UpdateAnimotionState()
-    {
-        MovementState state;
-
-        if (dirX > 0f)
-        {
-           state = MovementState.running;
-            sprite.flipX = false;
-        }
-        else if (dirX < 0f)
-        {
-            state = MovementState.running;
-            sprite.flipX = true;
+            animator.SetBool("isJumping", !isGrounded);
         }
         else
         {
-            state = MovementState.idle;
+            animator.SetBool("isJumping", !isGrounded);
         }
 
-        if (rb.velocity.y > .1f)
-        {
-            state = MovementState.jumping;
-        }
-        else if (rb.velocity.y < -.1f)
-        {
-            state = MovementState.fall;
-        }
-            
+        FallSpeed = rb.velocity.y;
+        animator.SetFloat("FallSpeed", FallSpeed);
 
-        anim.SetInteger("state",(int)state);
     }
 }
