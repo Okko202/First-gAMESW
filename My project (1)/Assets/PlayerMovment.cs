@@ -30,7 +30,7 @@ public class PlayerMovment : MonoBehaviour
         rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
 
         if (horizontalInput > 0)
-        {
+        {aaaa
             spriteRenderer.flipX = false;
         }
         else if (horizontalInput < 0)
