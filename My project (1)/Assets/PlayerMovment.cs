@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public class PlayerMovment : MonoBehaviour
+[RequireComponent(typeof(CharacterController))]
+public class PlayerMovement : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public float jumpForce = 5f;
@@ -8,29 +9,30 @@ public class PlayerMovment : MonoBehaviour
 
     public Animator animator;
 
-    private Rigidbody2D rb;
-    private Collider2D col;
+    private CharacterController controller;
     private SpriteRenderer spriteRenderer;
     private bool isGrounded;
-    private float FallSpeed;
+    private float fallSpeed;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        col = GetComponent<Collider2D>();
+        controller = GetComponent<CharacterController>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void Update()
     {
-        isGrounded = col.IsTouchingLayers(groundLayer);
+        isGrounded = controller.isGrounded;
 
         float horizontalInput = Input.GetAxis("Horizontal");
         animator.SetFloat("Speed", Mathf.Abs(horizontalInput));
-        rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
+
+        Vector3 moveDirection = new Vector3(horizontalInput, 0f, 0f) * moveSpeed;
+
+        controller.Move(moveDirection * Time.deltaTime);
 
         if (horizontalInput > 0)
-        { 
+        {
             spriteRenderer.flipX = false;
         }
         else if (horizontalInput < 0)
@@ -40,16 +42,15 @@ public class PlayerMovment : MonoBehaviour
 
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            animator.SetBool("isJumping", !isGrounded);
+            moveDirection.y = jumpForce;
+            animator.SetBool("isJumping", true);
         }
         else
         {
-            animator.SetBool("isJumping", !isGrounded);
+            animator.SetBool("isJumping", false);
         }
 
-        FallSpeed = rb.velocity.y;
-        animator.SetFloat("FallSpeed", FallSpeed);
-
+        fallSpeed = moveDirection.y;
+        animator.SetFloat("FallSpeed", fallSpeed);
     }
 }
